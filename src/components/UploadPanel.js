@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import {
-  Box,
   Button,
   TextField,
   Typography,
   Paper,
-  CircularProgress
 } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { uploadDocument } from "../api";
@@ -91,6 +89,19 @@ const UploadPanel = ({ setIsProcessing }) => {
 
     <Typography color="text.secondary" mt={1}>
       {statusMsg}
+    </Typography>
+
+    <Typography
+      variant="caption"
+      color="text.secondary"
+      sx={{
+        mt: 'auto',
+        textAlign: 'center',
+        fontSize: '0.7rem',
+        opacity: 0.7
+      }}
+    >
+      © 2026 Clinical Trials Intelligence System. All rights reserved, Developed by Pushpa ❤️.
     </Typography>
   </Paper>
 );

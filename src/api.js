@@ -4,8 +4,6 @@ const API = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
 });
 
-console.log("API base URL:", process.env.REACT_APP_API_URL);
-
 export const uploadDocument = (formData) =>
   API.post("/upload", formData);
 
