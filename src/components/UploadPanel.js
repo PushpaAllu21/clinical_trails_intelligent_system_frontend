@@ -133,7 +133,7 @@ useEffect(() => {
     <Paper
       elevation={4}
       sx={{
-        width: sidebarOpen ? 280 : 80,
+        width: { xs: sidebarOpen ? "100%" : 0, md: sidebarOpen ? 280 : 80 },
         flexShrink: 0,
         transition: "all 0.3s ease",
         overflow: "hidden",
@@ -146,6 +146,8 @@ useEffect(() => {
         border: "1px solid rgba(255,255,255,0.1)",
         boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
         color: "#fff",
+        position: { xs: "absolute", md: "relative" },
+        zIndex: { xs: sidebarOpen ? 100 : -1, md: "auto" },
         "&::-webkit-scrollbar": {
           width: "6px"
         },
@@ -179,10 +181,6 @@ useEffect(() => {
 
       {sidebarOpen && (
         <>
-          {/* 🔥 LOGO
-          <Typography variant="h6" fontWeight={700}>
-            🧠 Clinical AI
-          </Typography> */}
 
       <Box
         sx={{

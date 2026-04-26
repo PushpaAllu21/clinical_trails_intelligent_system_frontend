@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography, IconButton } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
 import UploadPanel from "./components/UploadPanel";
 import ChatPanel from "./components/ChatPanel";
 import AuthPanel from "./components/AuthPanel";
@@ -53,13 +55,14 @@ function App() {
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden", background: UI.bgMain, color: UI.text }}>      <Box
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden", background: UI.bgMain, color: UI.text }}>
+      <Box
         sx={{
           flexShrink: 0,
           backdropFilter: "blur(20px)",
           background: "rgba(15, 23, 42, 0.7)",
           borderBottom: "1px solid rgba(255,255,255,0.1)",
-          px: 3,
+          px: { xs: 2, md: 3 },
           py: 1.5,
           display: "flex",
           justifyContent: "space-between",
@@ -67,13 +70,23 @@ function App() {
           color: UI.text
         }}
       >
-        <Box>
-          <Typography variant="h6" fontWeight={700}>
-            Clinical Trials Intelligence System
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#94a3b8" }}>
-            Signed in as {user.name} ({user.role})
-          </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, flex: 1 }}>
+          {/* Mobile Menu Icon */}
+          <IconButton
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            sx={{ display: { xs: "flex", md: "none" }, color: "#fff" }}
+          >
+            {sidebarOpen ? <CloseIcon /> : <MenuIcon />}
+          </IconButton>
+          
+          <Box>
+            <Typography variant="h6" fontWeight={700} sx={{ fontSize: { xs: "1rem", md: "1.25rem" } }}>
+              Clinical Trials Intelligence System
+            </Typography>
+            <Typography variant="body2" sx={{ color: "#94a3b8", display: { xs: "none", sm: "block" } }}>
+              Signed in as {user.name} ({user.role})
+            </Typography>
+          </Box>
         </Box>
         <Button
           onClick={handleLogout}
@@ -83,9 +96,10 @@ function App() {
             borderRadius: "10px",
             textTransform: "none",
             transition: "0.3s",
-            px: 3,
+            px: { xs: 1.5, md: 3 },
             py: 1,
             fontWeight: 600,
+            fontSize: { xs: "0.75rem", md: "1rem" },
             "&:hover": {
               background: "rgba(255,255,255,0.1)",
               transform: "translateY(-2px)"
