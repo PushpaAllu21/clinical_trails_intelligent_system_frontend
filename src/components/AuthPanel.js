@@ -457,7 +457,7 @@ const AuthPanel = ({ onAuthSuccess }) => {
                     </Typography>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center" }}>
-{/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>?]/.test(password) ? (
+                    {/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>?]/.test(password) ? (
                       <CheckCircle sx={{ fontSize: 16, color: UI.success, mr: 1 }} />
                     ) : (
                       <Error sx={{ fontSize: 16, color: UI.error, mr: 1 }} />
