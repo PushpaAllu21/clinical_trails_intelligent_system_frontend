@@ -155,7 +155,7 @@ const ChatPanel = ({ chatId, messages, setActiveChatId, setMessages, isProcessin
                 fontSize: "16px"
               }}
             >
-              🚀 Ask something to explore your data
+              🚀 Transform data into decisions. Start by asking a question.
             </Box>
           )}
 
