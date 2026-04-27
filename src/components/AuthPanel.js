@@ -23,7 +23,6 @@ const AuthPanel = ({ onAuthSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [retryAfter, setRetryAfter] = useState(0);
   const [validationErrors, setValidationErrors] = useState({});
 
   // Password strength checker
@@ -58,6 +57,8 @@ const AuthPanel = ({ onAuthSuccess }) => {
         password: password.trim()
       };
 
+      console.log(`🔐 Attempting ${mode}...`);
+
       let response;
       if (mode === "login") {
         response = await loginUser(payload);
@@ -73,30 +74,63 @@ const AuthPanel = ({ onAuthSuccess }) => {
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
+      console.log(`✅ ${mode} successful for ${user.email}`);
       onAuthSuccess(user);
     } catch (err) {
-      console.error("Auth failed", err);
+      console.error("❌ Auth Error Details:", {
+        message: err.message,
+        code: err.code,
+        status: err.response?.status,
+        data: err.response?.data,
+        isNetworkError: !err.response && err.message === 'Network Error',
+        isTimeout: err.code === 'ECONNABORTED',
+        isServer: err.response?.status >= 500
+      });
 
-      // Handle rate limiting
-      if (err.response?.status === 429) {
-        const retryAfterSeconds = err.response.headers['retry-after'] || 900; // Default 15 minutes
-        setRetryAfter(retryAfterSeconds);
-        setError(`Too many attempts. Please wait ${Math.ceil(retryAfterSeconds / 60)} minutes before trying again.`);
+      // Network error - backend not responding
+      if (err.code === 'ERR_NETWORK' || (err.code === 'ECONNABORTED')) {
+        setError(
+          "🌐 Cannot reach the backend server. Please check:\n" +
+          "1. Backend is running and deployed\n" +
+          "2. Check the /health endpoint\n" +
+          "3. Verify REACT_APP_API_URL environment variable"
+        );
         return;
       }
 
-      // Handle validation errors
+      // No response at all (404, CORS, network)
+      if (!err.response) {
+        setError(
+          "⚠️  Backend server not responding. This usually means:\n" +
+          "- Server is down or crashed\n" +
+          "- CORS configuration issue\n" +
+          "- Wrong API URL in environment"
+        );
+        return;
+      }
+
+      // Validation errors
       if (err.response?.data?.details) {
         const errors = {};
         err.response.data.details.forEach(detail => {
           errors[detail.path] = detail.msg;
         });
         setValidationErrors(errors);
-        setError("Please check the form for errors.");
+        setError("❌ Please check the form for errors.");
         return;
       }
 
-      const msg = err.response?.data?.error || err.response?.data?.message || "Authentication failed. Please try again.";
+      // Server error
+      if (err.response?.status >= 500) {
+        setError(
+          `❌ Server error (${err.response.status}): ${err.response.data?.error || 'Something went wrong'}.\n` +
+          "Check the backend logs for details."
+        );
+        return;
+      }
+
+      // Default error message
+      const msg = err.response?.data?.error || err.response?.data?.message || err.message || "Authentication failed. Please try again.";
       setError(msg);
     } finally {
       setLoading(false);
@@ -110,7 +144,7 @@ const AuthPanel = ({ onAuthSuccess }) => {
     setName("");
     setEmail("");
     setPassword("");
-    setRetryAfter(0);
+
   };
 
   const togglePasswordVisibility = () => {
@@ -204,32 +238,16 @@ const AuthPanel = ({ onAuthSuccess }) => {
 
           {error && (
             <Alert
-              severity={retryAfter > 0 ? "warning" : "error"}
+              severity="error"
               sx={{
                 mb: 2,
-                backgroundColor: retryAfter > 0 ? "rgba(245, 158, 11, 0.15)" : "rgba(239, 68, 68, 0.15)",
-                borderColor: retryAfter > 0 ? "rgba(245, 158, 11, 0.5)" : "rgba(239, 68, 68, 0.5)",
+                backgroundColor: "rgba(239, 68, 68, 0.15)",
+                borderColor: "rgba(239, 68, 68, 0.5)",
                 border: "1px solid",
-                color: retryAfter > 0 ? "#fcd34d" : "#fca5a5"
+                color: "#fca5a5"
               }}
             >
               {error}
-              {retryAfter > 0 && (
-                <Box sx={{ mt: 1 }}>
-                  <LinearProgress
-                    variant="determinate"
-                    value={((900 - retryAfter) / 900) * 100}
-                    sx={{
-                      height: 4,
-                      borderRadius: 2,
-                      backgroundColor: "rgba(245, 158, 11, 0.2)",
-                      "& .MuiLinearProgress-bar": {
-                        backgroundColor: "#fcd34d"
-                      }
-                    }}
-                  />
-                </Box>
-              )}
             </Alert>
           )}
 
@@ -474,7 +492,7 @@ const AuthPanel = ({ onAuthSuccess }) => {
               type="submit"
               variant="contained"
               size="large"
-              disabled={loading || retryAfter > 0}
+              disabled={loading}
               sx={{
                 background: UI.accent,
                 borderRadius: "12px",
