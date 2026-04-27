@@ -116,7 +116,7 @@ const ChatPanel = ({ chatId, messages, setActiveChatId, setMessages, isProcessin
       }}
     >
       <Typography variant="h6" fontWeight={600} sx={{ color: UI.text }}>
-        Clinical Trials RAG Agent System
+        RAG Agent System
       </Typography>
 
       {/* Chat Area */}

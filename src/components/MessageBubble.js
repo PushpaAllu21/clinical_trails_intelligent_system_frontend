@@ -198,7 +198,7 @@ const MessageBubble = ({ msg }) => {
                       wordBreak: "break-word"
                     }}
                   >
-                    📄 {s.trial_id} (Score: {s.score.toFixed(2)})
+                    📄 {s.text?.substring(0, 60)}... (Score: {s.score.toFixed(2)})
                   </Typography>
                 ))}
               </Box>

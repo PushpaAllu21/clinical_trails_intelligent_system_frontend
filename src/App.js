@@ -81,7 +81,7 @@ function App() {
           
           <Box>
             <Typography variant="h6" fontWeight={700} sx={{ fontSize: { xs: "1rem", md: "1.25rem" } }}>
-              Clinical Trials Intelligence System
+              Query Sphere AI
             </Typography>
             <Typography variant="body2" sx={{ color: "#94a3b8", display: { xs: "none", sm: "block" } }}>
               Signed in as {user.name} ({user.role})

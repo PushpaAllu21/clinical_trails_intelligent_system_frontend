@@ -29,9 +29,6 @@ const UploadPanel = ({
   setSidebarOpen
 }) => {
   const [file, setFile] = useState(null);
-  const [trialId, setTrialId] = useState("");
-  const [docType, setDocType] = useState("");
-  const [version, setVersion] = useState("");
   const [statusMsg, setStatusMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -67,9 +64,6 @@ useEffect(() => {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("trial_id", trialId);
-    formData.append("document_type", docType);
-    formData.append("version", version);
 
     try {
       setLoading(true);
@@ -167,7 +161,7 @@ useEffect(() => {
       >
         {sidebarOpen && (
           <Typography fontWeight={700}>
-            🧠 Clinical Trails AI
+            Query Sphere AI
           </Typography>
         )}
 
@@ -182,22 +176,37 @@ useEffect(() => {
       {sidebarOpen && (
         <>
 
+      {/* 🚀 FILE UPLOAD */}
       <Box
+        component="label"
         sx={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 1
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 1,
+          width: "100%",
+          py: 2,
+          px: 2,
+          borderRadius: "16px",
+          border: file
+            ? "2px solid rgba(102, 126, 234, 0.6)"
+            : "2px dashed rgba(255,255,255,0.3)",
+          background: file
+            ? "rgba(102, 126, 234, 0.12)"
+            : "rgba(255,255,255,0.04)",
+          backdropFilter: "blur(10px)",
+          cursor: "pointer",
+          transition: "all 0.3s ease",
+          textAlign: "center",
+          "&:hover": {
+            borderColor: "#667eea",
+            background: "rgba(102, 126, 234, 0.08)",
+            transform: "translateY(-2px)",
+            boxShadow: "0 10px 30px rgba(102, 126, 234, 0.2)"
+          }
         }}
       >
-
-      {/* 🚀 FILE UPLOAD */}
-      <Button
-        variant="outlined"
-        component="label"
-        startIcon={<UploadFileIcon />}
-        fullWidth
-      >
-        {file ? "Change File" : "Select File"}
         <input
           hidden
           type="file"
@@ -223,84 +232,34 @@ useEffect(() => {
             setFile(selectedFile);
           }}
         />
-      </Button>
-      {/* INPUTS */}
-      <TextField
-        label="Trial ID"
-        value={trialId}
-        onChange={(e) => setTrialId(e.target.value)}
-        fullWidth
-        sx={{
-          backdropFilter: "blur(10px)",
-          background: "rgba(255,255,255,0.08)",
-          borderRadius: "12px",
-          input: {
-            color: "#fff",
-            "&::placeholder": {
-              color: "#ccc",
-              opacity: 1
-            }
-          },
-          label: { color: "#aaa" },
-          "& .MuiOutlinedInput-root": {
-            borderRadius: "12px",
-            "& fieldset": { borderColor: "rgba(255,255,255,0.2)" },
-            "&:hover fieldset": { borderColor: "#667eea" },
-            "&.Mui-focused fieldset": { borderColor: "#667eea" }
-          }
-        }}
-      />
-      <TextField
-        label="Document Type"
-        value={docType}
-        onChange={(e) => setDocType(e.target.value)}
-        fullWidth
-        sx={{
-          backdropFilter: "blur(10px)",
-          background: "rgba(255,255,255,0.08)",
-          borderRadius: "12px",
-          input: {
-            color: "#fff",
-            "&::placeholder": {
-              color: "#ccc",
-              opacity: 1
-            }
-          },
-          label: { color: "#aaa" },
-          "& .MuiOutlinedInput-root": {
-            borderRadius: "12px",
-            "& fieldset": { borderColor: "rgba(255,255,255,0.2)" },
-            "&:hover fieldset": { borderColor: "#667eea" },
-            "&.Mui-focused fieldset": { borderColor: "#667eea" }
-          }
-        }}
-      />
 
-      <TextField
-        label="Version"
-        value={version}
-        onChange={(e) => setVersion(e.target.value)}
-        fullWidth
-        sx={{
-          backdropFilter: "blur(10px)",
-          background: "rgba(255,255,255,0.08)",
-          borderRadius: "12px",
-          input: {
-            color: "#fff",
-            "&::placeholder": {
-              color: "#ccc",
-              opacity: 1
-            }
-          },
-          label: { color: "#aaa" },
-          "& .MuiOutlinedInput-root": {
-            borderRadius: "12px",
-            "& fieldset": { borderColor: "rgba(255,255,255,0.2)" },
-            "&:hover fieldset": { borderColor: "#667eea" },
-            "&.Mui-focused fieldset": { borderColor: "#667eea" }
-          }
-        }}
-      />
+        <Box
+          sx={{
+            width: 48,
+            height: 48,
+            borderRadius: "14px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "linear-gradient(135deg, #667eea, #764ba2)",
+            boxShadow: "0 6px 20px rgba(102, 126, 234, 0.35)",
+            mb: 0.5
+          }}
+        >
+          <UploadFileIcon sx={{ color: "#fff", fontSize: 26 }} />
+        </Box>
+
+        <Typography
+          variant="body2"
+          fontWeight={600}
+          sx={{ color: file ? "#c7d2fe" : "#e2e8f0" }}
+        >
+          {file ? "Change File" : "Click or Drop File Here"}
+        </Typography>
+
+        <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.5)" }}>
+          {file ? file.name : "PDF, CSV, XLSX, JPG, PNG up to 10MB"}
+        </Typography>
       </Box>
       {/* 📄 FILE PREVIEW */}
       {file && (
@@ -317,14 +276,6 @@ useEffect(() => {
           <Typography variant="caption">
             {(file.size / 1024).toFixed(2)} KB
           </Typography>
-
-          {file.type.includes("image") && (
-            <img
-              src={URL.createObjectURL(file)}
-              alt="preview"
-              style={{ width: "100%", marginTop: "8px", borderRadius: "8px" }}
-            />
-          )}
         </Box>
       )}
 
@@ -480,8 +431,8 @@ useEffect(() => {
           opacity: 0.7
         }}
       >
-        © 2026 Clinical Trials Intelligence System <br />
-        Developed by Pushpa ❤️
+        © 2026 Query Sphere AI <br />
+        Developed by Chandra Sekhar.
       </Typography>
         </>
       )}

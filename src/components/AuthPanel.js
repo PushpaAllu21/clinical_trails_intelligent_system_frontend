@@ -3,7 +3,6 @@ import { Box, Button, TextField, Typography, Paper, Alert, IconButton, LinearPro
 import { Visibility, VisibilityOff, CheckCircle, Error } from "@mui/icons-material";
 import { loginUser, registerUser } from "../api";
 
-// console.log(Visibility, VisibilityOff, CheckCircle, Error); // Debug: Ensure icons are imported correctly
 const UI = {
   bgMain: "linear-gradient(135deg, #0f172a, #1e293b)",
   glass: "rgba(255,255,255,0.05)",
@@ -25,7 +24,6 @@ const AuthPanel = ({ onAuthSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
 
-  // Password strength checker
   const getPasswordStrength = (pwd) => {
     let strength = 0;
     if (pwd.length >= 6) strength++;
@@ -81,35 +79,21 @@ const AuthPanel = ({ onAuthSuccess }) => {
         message: err.message,
         code: err.code,
         status: err.response?.status,
-        data: err.response?.data,
-        isNetworkError: !err.response && err.message === 'Network Error',
-        isTimeout: err.code === 'ECONNABORTED',
-        isServer: err.response?.status >= 500
+        data: err.response?.data
       });
 
-      // Network error - backend not responding
-      if (err.code === 'ERR_NETWORK' || (err.code === 'ECONNABORTED')) {
-        setError(
-          "🌐 Cannot reach the backend server. Please check:\n" +
-          "1. Backend is running and deployed\n" +
-          "2. Check the /health endpoint\n" +
-          "3. Verify REACT_APP_API_URL environment variable"
-        );
+      if (err.code === 'ERR_NETWORK' || err.code === 'ECONNABORTED') {
+        setError("🌐 Cannot reach the backend server.");
+        console.error("🌐 Network Error: Backend may be down or wrong API URL.");
         return;
       }
 
-      // No response at all (404, CORS, network)
       if (!err.response) {
-        setError(
-          "⚠️  Backend server not responding. This usually means:\n" +
-          "- Server is down or crashed\n" +
-          "- CORS configuration issue\n" +
-          "- Wrong API URL in environment"
-        );
+        setError("⚠️ Backend server not responding.");
+        console.error("⚠️ No Response: Server down, CORS issue, or wrong API URL.");
         return;
       }
 
-      // Validation errors
       if (err.response?.data?.details) {
         const errors = {};
         err.response.data.details.forEach(detail => {
@@ -120,16 +104,12 @@ const AuthPanel = ({ onAuthSuccess }) => {
         return;
       }
 
-      // Server error
       if (err.response?.status >= 500) {
-        setError(
-          `❌ Server error (${err.response.status}): ${err.response.data?.error || 'Something went wrong'}.\n` +
-          "Check the backend logs for details."
-        );
+        setError(`❌ Server error (${err.response.status}). Please try again later.`);
+        console.error(`❌ Server ${err.response.status}: ${err.response.data?.error || 'Unknown'}`);
         return;
       }
 
-      // Default error message
       const msg = err.response?.data?.error || err.response?.data?.message || err.message || "Authentication failed. Please try again.";
       setError(msg);
     } finally {
@@ -144,7 +124,6 @@ const AuthPanel = ({ onAuthSuccess }) => {
     setName("");
     setEmail("");
     setPassword("");
-
   };
 
   const togglePasswordVisibility = () => {
@@ -177,7 +156,7 @@ const AuthPanel = ({ onAuthSuccess }) => {
         }}
       >
         <Typography variant="h6" fontWeight={700}>
-          Clinical Trials Intelligence System
+          Query Sphere AI
         </Typography>
         <Button
           onClick={handleModeSwitch}
@@ -331,34 +310,28 @@ const AuthPanel = ({ onAuthSuccess }) => {
                 helperText={validationErrors.password}
                 sx={{
                   backdropFilter: "blur(10px)",
-                  background: "rgba(255,255,255,0.06)",   // softer background
+                  background: "rgba(255,255,255,0.06)",
                   borderRadius: "12px",
-
                   "& .MuiInputBase-input": {
                     color: UI.text,
-                    paddingRight: "40px" // 🔥 space for icon
+                    paddingRight: "40px"
                   },
-
                   label: {
                     color: "rgba(255,255,255,0.7)"
                   },
-
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "12px",
-
                     "& fieldset": {
                       borderColor: validationErrors.password
-                        ? "rgba(239,68,68,0.5)"   // softer red
+                        ? "rgba(239,68,68,0.5)"
                         : UI.border,
                       transition: "0.3s"
                     },
-
                     "&:hover fieldset": {
                       borderColor: validationErrors.password
                         ? "#ef4444"
                         : "#667eea"
                     },
-
                     "&.Mui-focused fieldset": {
                       borderColor: validationErrors.password
                         ? "#ef4444"
@@ -368,9 +341,8 @@ const AuthPanel = ({ onAuthSuccess }) => {
                         : "0 0 0 1px rgba(102,126,234,0.25)"
                     }
                   },
-
                   "& .MuiFormHelperText-root": {
-                    color: "#fca5a5",   // softer error text
+                    color: "#fca5a5",
                     marginLeft: "2px"
                   }
                 }}
@@ -383,13 +355,10 @@ const AuthPanel = ({ onAuthSuccess }) => {
                   right: 12,
                   top: "50%",
                   transform: "translateY(-50%)",
-
                   color: validationErrors.password
                     ? "rgba(239,68,68,0.8)"
                     : "rgba(255,255,255,0.7)",
-
                   transition: "0.2s",
-
                   "&:hover": {
                     color: validationErrors.password
                       ? "#ef4444"
@@ -434,56 +403,24 @@ const AuthPanel = ({ onAuthSuccess }) => {
                   }}
                 />
                 <Box sx={{ mt: 1, display: "grid", gap: 0.5 }}>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    {password.length >= 6 ? (
-                      <CheckCircle sx={{ fontSize: 16, color: UI.success, mr: 1 }} />
-                    ) : (
-                      <Error sx={{ fontSize: 16, color: UI.error, mr: 1 }} />
-                    )}
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.7)" }}>
-                      At least 6 characters
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    {/[a-z]/.test(password) ? (
-                      <CheckCircle sx={{ fontSize: 16, color: UI.success, mr: 1 }} />
-                    ) : (
-                      <Error sx={{ fontSize: 16, color: UI.error, mr: 1 }} />
-                    )}
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.7)" }}>
-                      One lowercase letter
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    {/[A-Z]/.test(password) ? (
-                      <CheckCircle sx={{ fontSize: 16, color: UI.success, mr: 1 }} />
-                    ) : (
-                      <Error sx={{ fontSize: 16, color: UI.error, mr: 1 }} />
-                    )}
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.7)" }}>
-                      One uppercase letter
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    {/\d/.test(password) ? (
-                      <CheckCircle sx={{ fontSize: 16, color: UI.success, mr: 1 }} />
-                    ) : (
-                      <Error sx={{ fontSize: 16, color: UI.error, mr: 1 }} />
-                    )}
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.7)" }}>
-                      One number
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    {/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>?]/.test(password) ? (
-                      <CheckCircle sx={{ fontSize: 16, color: UI.success, mr: 1 }} />
-                    ) : (
-                      <Error sx={{ fontSize: 16, color: UI.error, mr: 1 }} />
-                    )}
-                    <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.7)" }}>
-                      One special character
-                    </Typography>
-                  </Box>
+                  {[
+                    { test: password.length >= 6, label: "At least 6 characters" },
+                    { test: /[a-z]/.test(password), label: "One lowercase letter" },
+                    { test: /[A-Z]/.test(password), label: "One uppercase letter" },
+                    { test: /\d/.test(password), label: "One number" },
+                    { test: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>?]/.test(password), label: "One special character" }
+                  ].map((item, i) => (
+                    <Box key={i} sx={{ display: "flex", alignItems: "center" }}>
+                      {item.test ? (
+                        <CheckCircle sx={{ fontSize: 16, color: UI.success, mr: 1 }} />
+                      ) : (
+                        <Error sx={{ fontSize: 16, color: UI.error, mr: 1 }} />
+                      )}
+                      <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.7)" }}>
+                        {item.label}
+                      </Typography>
+                    </Box>
+                  ))}
                 </Box>
               </Box>
             )}
